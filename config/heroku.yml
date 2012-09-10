@@ -1,0 +1,45 @@
+#
+# Format:
+#
+# <stage name>:
+#   app: <Heroku app name>
+#   stack: <Heroku stack, optional>
+#   tag: <git tag pattern, optional>
+#   repo: <git repository, optional>
+#   config:
+#     - <Heroku config:var name>: <Heroku config:var value>
+#
+staging:
+  stack: cedar
+  app: notch8-staging-errbit
+  config: &default
+    BUNDLE_WITHOUT: "development:test"
+  addons:
+    - mongohq:free
+    - scheduler:standard
+    - sendgrid:starter
+
+
+notch8:
+  app: notch8-errbit
+  stack: cedar
+  config:
+    RACK_ENV: production
+    ERRBIT_HOST: err.notch8.com
+    BUNDLE_WITHOUT: "development:test"
+  addons:
+    - mongohq:free
+    - scheduler:standard
+    - sendgrid:starter
+
+assaydepot:
+  app: assaydepot-errbit
+  stack: cedar
+  config:
+    RACK_ENV: production
+    ERRBIT_HOST: err.assaydepot.com
+    BUNDLE_WITHOUT: "development:test"
+  addons:
+    - mongohq:free
+    - scheduler:standard
+    - sendgrid:starter

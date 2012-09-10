@@ -12,6 +12,7 @@ gem 'devise', '~> 1.5.3'
 
 gem 'omniauth-github'
 gem 'oa-core'
+gem 'heroku_san'
 
 gem 'lighthouse-api'
 gem 'oruen_redmine_client', :require => 'redmine_client'
