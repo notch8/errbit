@@ -1,7 +1,10 @@
-# Errbit [![TravisCI][travis-img-url]][travis-ci-url]
+# Errbit [![TravisCI][travis-img-url]][travis-ci-url] [![Code Climate][codeclimate-img-url]][codeclimate-url]
 
 [travis-img-url]: https://secure.travis-ci.org/errbit/errbit.png?branch=master
 [travis-ci-url]: http://travis-ci.org/errbit/errbit
+[codeclimate-img-url]: https://codeclimate.com/badge.png
+[codeclimate-url]: https://codeclimate.com/github/errbit/errbit
+
 
 ### The open source, self-hosted error catcher
 
@@ -57,12 +60,17 @@ If this doesn't sound like you, you should probably stick with [Airbrake](http:/
 The [Thoughtbot](http://thoughtbot.com) guys offer great support for it and it is much more worry-free.
 They have a free package and even offer a *"Airbrake behind your firewall"* solution.
 
+Mailing List
+------------
+
+Join the Google Group at https://groups.google.com/group/errbit to receive updates and notifications.
+
 Demo
 ----
 
 There is a demo available at [http://errbit-demo.herokuapp.com/](http://errbit-demo.herokuapp.com/)
 
-Email: demo@errbit-demo.herokuapp.com
+Email: demo@errbit-demo.herokuapp.com<br/>
 Password: password
 
 Installation
@@ -144,10 +152,7 @@ git clone http://github.com/errbit/errbit.git
 ```bash
 gem install heroku
 heroku create example-errbit --stack cedar
-heroku addons:add mongohq:free
-cp -f config/mongoid.mongohq.yml config/mongoid.yml
-git add -f config/mongoid.yml
-git commit -m "Added mongoid config for MongoHQ"
+heroku addons:add mongolab:starter
 heroku addons:add sendgrid:starter
 heroku config:add HEROKU=true
 heroku config:add ERRBIT_HOST=some-hostname.example.com
@@ -168,7 +173,7 @@ heroku run rake db:seed
     ```bash
     # Install the heroku scheduler add-on
     heroku addons:add scheduler:standard
-    
+
     # Go open the dashboard to schedule the job.  You should use
     # 'rake errbit:db:clear_resolved' as the task command, and schedule it
     # at whatever frequency you like (once/day should work great).
@@ -185,13 +190,19 @@ heroku run rake db:seed
     * Or clear resolved errors manually:
 
     ```bash
-    heroku rake errbit:db:clear_resolved
+    heroku run rake errbit:db:clear_resolved
     ```
 
   * You may want to enable the deployment hook for heroku :
 
 ```bash
-heroku addons:add deployhooks:http url="http://YOUR_ERRBIT_HOST/deploys.txt?api_key=YOUR_API_KEY"
+heroku addons:add deployhooks:http --url="http://YOUR_ERRBIT_HOST/deploys.txt?api_key=YOUR_API_KEY"
+```
+
+  * You may also want to configure a different secret token for each deploy:
+
+```bash
+heroku config:add SECRET_TOKEN=some-secret-token
 ```
 
   * Enjoy!
@@ -233,11 +244,53 @@ You can change the requested account permissions by setting `github_access_scope
 </table>
 
 
+### GitHub authentication when served on Heroku
+
+You will need to set up Heroku variables accordingly as described in [Configuring GitHub authentication](#configuring-github-authentication):
+
+* GITHUB_AUTHENTICATION
+
+```bash
+heroku config:add GITHUB_AUTHENTICATION=true
+```
+
+* GITHUB_CLIENT_ID
+
+```bash
+heroku config:add GITHUB_CLIENT_ID=the_client_id_provided_by_GitHub
+```
+
+* GITHUB_SECRET
+
+```bash
+heroku config:add GITHUB_SECRET=the_secret_provided_by_GitHub
+```
+
+* GITHUB_ACCESS_SCOPE - set only one scope `repo` or `public_repo`. If you really need to put more than one, separate them with comma.
+
+```bash
+heroku config:add GITHUB_ACCESS_SCOPE=repo,public_repo
+```
+
+__Note__: To avoid restarting your Heroku app 4 times you can set Heroku variables in a single command, i.e:
+
+```bash
+heroku config:add GITHUB_AUTHENTICATION=true \
+GITHUB_CLIENT_ID=the_client_id_provided_by_GitHub \
+GITHUB_SECRET=the_secret_provided_by_GitHub \
+GITHUB_ACCESS_SCOPE=repo,public_repo
+```
+
 ### Configuring LDAP authentication:
 
   * In `config/config.yml`, set `user_has_username` to `true`
   * Follow the instructions at https://github.com/cschiewek/devise_ldap_authenticatable
   to set up the devise_ldap_authenticatable gem.
+  * Ensure to set ```config.ldap_create_user = true``` in ```config/initializers/devise.rb```, this enables creating the users from LDAP, otherwhise login will not work.
+  * Create a new initializer (e.g. ```config/initializers/devise_ldap.rb```) and add the following code to enable ldap authentication in the User-model:
+```ruby
+Errbit::Config.devise_modules << :ldap_authenticatable
+```
 
   * If you are authenticating by `username`, you will need to set the user's email manually
   before authentication. You must add the following lines to `app/models/user.rb`:
@@ -249,12 +302,22 @@ You can change the requested account permissions by setting `github_access_scope
   end
 ```
 
+  * Now login with your user from LDAP, this will create a user in the database
+  * Open a rails console and set the admin flag for your user:
+
+```ruby
+user = User.first
+user.admin = true
+user.save!
+```
+
 Upgrading
 ---------
 When upgrading Errbit, please run:
 
 ```bash
 git pull origin master # assuming origin is the github.com/errbit/errbit repo
+bundle install
 rake db:migrate
 ```
 
@@ -321,6 +384,17 @@ card_type = Defect, status = Open, priority = Essential
 * You will also need to provide your username and password for your GitHub account.
   * (We'd really appreciate it if you wanted to help us implement OAuth instead!)
 
+**Bitbucket Issues Integration**
+
+* For 'BITBUCKET REPO' field, the account will either be a username or organization. i.e. **errbit/errbit**
+* You will also need to provide your username and password for your Bitbucket account.
+
+**Gitlab Issues Integration**
+
+* Account is the host of your gitlab installation. i.e. **http://gitlab.example.com**
+* To authenticate, Errbit uses token-based authentication. Get your API Key in your user settings (or create special user for this purpose)
+* You also need to provide project ID (it needs to be Number) for issues to be created
+
 
 What if Errbit has an error?
 ----------------------------
@@ -347,6 +421,23 @@ or you can set up the GitHub Issues tracker for your **Self.Errbit** app:
   * You can now easily post bug reports to GitHub Issues by clicking the **Create Issue** button on a **Self.Errbit** error.
 
 
+Use Errbit with applications written in other languages
+-------------------------------------------------------
+
+In theory, any Airbrake-compatible error catcher for other languages should work with Errbit.
+Solutions known to work are listed below:
+
+<table>
+  <tr>
+    <th>PHP (&gt;= 5.3)</th>
+    <td>https://github.com/flippa/errbit-php</td>
+  </tr>
+  <tr>
+    <th>Python</th>
+    <td>https://github.com/mkorenkov/errbit.py , https://github.com/pulseenergy/airbrakepy</td>
+  </tr>
+</table>
+
 TODO
 ----
 
@@ -357,9 +448,14 @@ Special Thanks
 --------------
 
 * [Michael Parenteau](http://michaelparenteau.com) - For rocking the Errbit design and providing a great user experience.
-* [Nick Recobra aka oruen](https://github.com/oruen) - Nick is Errbit's first core contributor. He's been working hard at making Errbit more awesome.
+* [Nick Recobra (@oruen)](https://github.com/oruen) - Nick is Errbit's first core contributor. He's been working hard at making Errbit more awesome.
+* [Nathan Broadbent (@ndbroadbent)](https://github.com/ndbroadbent) - Maintaining Errbit and contributing many features
+* [Vasiliy Ermolovich (@nashby)](https://github.com/nashby) - Contributing and helping to resolve issues and pull requests
+* [Marcin Ciunelis (@martinciu)](https://github.com/martinciu) - Helping to improve Errbit's architecture
 * [Relevance](http://thinkrelevance.com) - For giving me Open-source Fridays to work on Errbit and all my awesome co-workers for giving feedback and inspiration.
 * [Thoughtbot](http://thoughtbot.com) - For being great open-source advocates and setting the bar with [Airbrake](http://airbrakeapp.com).
+
+See the [contributors graph](https://github.com/errbit/errbit/graphs/contributors) for further details.
 
 
 Contributing

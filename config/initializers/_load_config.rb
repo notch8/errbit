@@ -9,10 +9,14 @@ unless defined?(Errbit::Config)
   if ENV['HEROKU']
     Errbit::Config.host = ENV['ERRBIT_HOST']
     Errbit::Config.email_from = ENV['ERRBIT_EMAIL_FROM']
-    Errbit::Config.email_at_notices = [1,3,10] #ENV['ERRBIT_EMAIL_AT_NOTICES']
+    Errbit::Config.email_at_notices = ENV['ERRBIT_EMAIL_AT_NOTICES']
     Errbit::Config.confirm_resolve_err = ENV['ERRBIT_CONFIRM_RESOLVE_ERR']
     Errbit::Config.user_has_username = ENV['ERRBIT_USER_HAS_USERNAME']
     Errbit::Config.allow_comments_with_issue_tracker = ENV['ERRBIT_ALLOW_COMMENTS_WITH_ISSUE_TRACKER']
+    Errbit::Config.enforce_ssl = ENV['ERRBIT_ENFORCE_SSL']
+
+    Errbit::Config.use_gravatar = ENV['ERRBIT_USE_GRAVATAR']
+    Errbit::Config.gravatar_default = ENV['ERRBIT_GRAVATAR_DEFAULT']
 
     Errbit::Config.github_authentication = ENV['GITHUB_AUTHENTICATION']
     Errbit::Config.github_client_id = ENV['GITHUB_CLIENT_ID']
@@ -20,12 +24,12 @@ unless defined?(Errbit::Config)
     Errbit::Config.github_access_scope = ENV['GITHUB_ACCESS_SCOPE'].split(',').map(&:strip) if ENV['GITHUB_ACCESS_SCOPE']
 
     Errbit::Config.smtp_settings = {
-      :address        => "smtp.sendgrid.net",
-      :port           => "25",
+      :address        => ENV['SMTP_SERVER'] || 'smtp.sendgrid.net',
+      :port           => ENV['SMTP_PORT']   || 25,
       :authentication => :plain,
-      :user_name      => ENV['SENDGRID_USERNAME'],
-      :password       => ENV['SENDGRID_PASSWORD'],
-      :domain         => ENV['SENDGRID_DOMAIN']
+      :user_name      => ENV['SMTP_USERNAME']   || ENV['SENDGRID_USERNAME'],
+      :password       => ENV['SMTP_PASSWORD']   || ENV['SENDGRID_PASSWORD'],
+      :domain         => ENV['SENDGRID_DOMAIN'] || ENV['ERRBIT_EMAIL_FROM'].split('@').last
     }
   end
 
@@ -55,6 +59,9 @@ default_config = YAML.load_file(default_config_file)
 default_config.each do |k,v|
   Errbit::Config.send("#{k}=", v) if Errbit::Config.send(k) === nil
 end
+
+# Disable GitHub oauth if gem is missing
+Errbit::Config.github_authentication = false unless defined?(OmniAuth::Strategies::GitHub)
 
 # Set SMTP settings if given.
 if smtp = Errbit::Config.smtp_settings

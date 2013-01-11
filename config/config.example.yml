@@ -39,6 +39,11 @@ user_has_username: false
 # but you want to leave a short comment.
 allow_comments_with_issue_tracker: true
 
+# Enable Gravatar.
+use_gravatar: true
+# Default Gravatar image, can be: mm, identicon, monsterid, wavatar, retro.
+gravatar_default: identicon
+
 # Setup your deploy options for capistrano.
 deployment:
   hosts:
@@ -48,6 +53,8 @@ deployment:
   repository: http://github.com/errbit/errbit.git
   user: deploy
   deploy_to: /var/www/apps/errbit
+  # setup path to unicorn pids folder (or deploy_to/shared/pids will be used)
+  # pids: /var/www/apps/errbit/shared/pids
 
 # GitHub OAuth configuration
 # If you want to allow authentication via GitHub, you will need to register
