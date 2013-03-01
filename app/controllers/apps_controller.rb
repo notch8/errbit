@@ -17,6 +17,10 @@ class AppsController < InheritedResources::Base
         @problems = @problems.unresolved unless @all_errs
         @problems = @problems.in_env(params[:environment]).ordered_by(@sort, @order).page(params[:page]).per(current_user.per_page)
 
+        if params[:query].present?
+          @problems = @problems.csearch(params[:query])
+        end
+
         @selected_problems = params[:problems] || []
         @deploys = @app.deploys.order_by(:created_at.desc).limit(5)
       end

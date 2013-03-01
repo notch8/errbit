@@ -406,6 +406,10 @@ form input#app_email_at_notices {
   margin: 0 5px;
 }
 
+form input#query {
+  width: 85%;
+}
+
 
 /* Tables */
 table {

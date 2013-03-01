@@ -9,6 +9,9 @@ class ProblemsController < ApplicationController
     app_scope = current_user.admin? ? App.all : current_user.apps
 
     @problems = Problem.for_apps(app_scope).in_env(params[:environment]).unresolved.ordered_by(@sort, @order)
+    if params[:query].present?
+      @problems = @problems.csearch(params[:query])
+    end
     @selected_problems = params[:problems] || []
     respond_to do |format|
       format.html do

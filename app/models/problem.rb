@@ -5,6 +5,8 @@
 class Problem
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Mongoid::Search
+
 
   field :last_notice_at, :type => DateTime, :default => Proc.new { Time.now }
   field :first_notice_at, :type => DateTime, :default => Proc.new { Time.now }
@@ -41,11 +43,14 @@ class Problem
 
   before_create :cache_app_attributes
 
+  search_in :app_name, :message, :environment, :where, :error_class, {:comments => :body}, { :match => :all }
+
+
   scope :resolved, where(:resolved => true)
   scope :unresolved, where(:resolved => false)
   scope :ordered, order_by(:last_notice_at.desc)
   scope :for_apps, lambda {|apps| where(:app_id.in => apps.all.map(&:id))}
-  
+
   validates_presence_of :last_notice_at, :first_notice_at
 
 
@@ -113,7 +118,7 @@ class Problem
     else raise("\"#{sort}\" is not a recognized sort")
     end
   end
-  
+
   def self.in_date_range(date_range)
     where(:first_notice_at.lte => date_range.end).where("$or" => [{:resolved_at => nil}, {:resolved_at.gte => date_range.begin}])
   end
@@ -141,7 +146,7 @@ class Problem
     first_notice = notices.order_by([:created_at, :asc]).first
     last_notice = notices.order_by([:created_at, :asc]).last
     notice ||= first_notice
-    
+
     attrs = {}
     attrs[:first_notice_at] = first_notice.created_at if first_notice
     attrs[:last_notice_at] = last_notice.created_at if last_notice

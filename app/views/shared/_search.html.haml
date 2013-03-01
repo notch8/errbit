@@ -1,0 +1,4 @@
+= form_tag request.url, :method => :get do
+  = text_field_tag :query, params[:query]
+  .buttons
+    = submit_tag :search
