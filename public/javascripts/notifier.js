@@ -366,7 +366,7 @@ printStackTrace.implementation.prototype = {
             '</notifier>' +
             '<error>' +
                 '<class>{exception_class}</class>' +
-                '<message>{exception_message}</message>' +
+                '<message><![CDATA[{exception_message}]]></message>' +
                 '<backtrace>{backtrace_lines}</backtrace>' +
             '</error>' +
             '<request>' +
@@ -572,7 +572,7 @@ printStackTrace.implementation.prototype = {
          * Is used to generate getter and setter method names.
          */
         capitalizeFirstLetter: function (str) {
-            return str[0].toUpperCase() + str.slice(1);  
+            return str.charAt(0).toUpperCase() + str.slice(1);  
         },
         
         /*
@@ -972,8 +972,8 @@ printStackTrace.implementation.prototype = {
                     //        '" number="' + matches[3] + '" />');
                     
                     backtrace.push({
-                        'function': matches[1],
-                        file: file,
+                        'function': Util.escape(matches[1]),
+                        file: Util.escape(file),
                         line: matches[3]
                     });
                 }
