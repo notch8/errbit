@@ -24,7 +24,6 @@ gem 'rails_autolink'
 # Please don't update hoptoad_notifier to airbrake.
 # It's for internal use only, and we monkeypatch certain methods
 gem 'hoptoad_notifier', "~> 2.4"
-gem 'heroku_san'
 
 
 # Remove / comment out any of the gems below if you want to disable
@@ -109,6 +108,7 @@ group :development do
 
   # Use thin for development
   gem 'thin', :group => :development, :platform => :ruby
+gem 'heroku_san'
 
 end
 

@@ -1,5 +1,5 @@
 - any_issue_links = problems.any?{|e| e.issue_link.present? && e.issue_link != 'pending' }
-=form_tag problems_path do
+=form_tag do
   %table.errs.selectable
     %thead
       %tr
