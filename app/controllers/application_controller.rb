@@ -1,8 +1,9 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
-  before_filter :authenticate_user!
-  before_filter :set_time_zone
+  before_action :authenticate_user_from_token!
+  before_action :authenticate_user!
+  before_action :set_time_zone
 
   # Devise override - After login, if there is only one app,
   # redirect to that app's path instead of the root path (apps#index).
@@ -13,6 +14,15 @@ class ApplicationController < ActionController::Base
 
   rescue_from ActionController::RedirectBackError, :with => :redirect_to_root
 
+  class StrongParametersWithEagerAttributesStrategy < DecentExposure::StrongParametersStrategy
+    def assign_attributes?
+      singular? && !get? && !delete? && (params[options[:param_key] || inflector.param_key]).present?
+    end
+  end
+
+  decent_configuration do
+    strategy StrongParametersWithEagerAttributesStrategy
+  end
 
 protected
 
@@ -35,5 +45,12 @@ protected
     Time.zone = current_user.time_zone if user_signed_in?
   end
 
-end
+  def authenticate_user_from_token!
+    user_token = params[User.token_authentication_key].presence
+    user       = user_token && User.find_by(authentication_token: user_token)
 
+    if user
+      sign_in user, store: false
+    end
+  end
+end

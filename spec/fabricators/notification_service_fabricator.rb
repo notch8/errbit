@@ -1,5 +1,5 @@
 Fabricator :notification_service  do
-  app!
+  app
   room_id { sequence :word }
   api_token { sequence :word }
   subdomain { sequence :word }
@@ -10,6 +10,10 @@ Fabricator :gtalk_notification_service, :from => :notification_service, :class_n
   user_id { sequence :word }
   service_url { sequence :word }
   service { sequence :word }
+end
+
+Fabricator :slack_notification_service, :from => :notification_service, :class_name => "NotificationService::SlackService" do
+  service_url { sequence :word }
 end
 
 %w(campfire flowdock hipchat hoiio hubot pushover webhook).each do |t|
