@@ -26,6 +26,13 @@ module Errbit
       config.serve_static_assets = Errbit::Config.serve_static_assets
     end
 
+    config.middleware.insert_before 0, "Rack::Cors" do
+      allow do
+        origins '*'
+        resource '*', headers: :any, methods: [:get, :post, :options]
+      end
+    end
+
     initializer "errbit.mongoid", before: "mongoid.load-config" do
       require Rails.root.join('config/mongo')
     end
