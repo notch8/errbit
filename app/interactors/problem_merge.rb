@@ -5,7 +5,7 @@ class ProblemMerge
     problems = problems.flatten.uniq
     @merged_problem = problems[0]
     @child_problems = problems[1..-1]
-    fail ArgumentError, "need almost 2 uniq different problems" if @child_problems.empty?
+    raise ArgumentError.new("need almost 2 uniq different problems") if @child_problems.empty?
   end
   attr_reader :merged_problem, :child_problems
 
@@ -16,7 +16,13 @@ class ProblemMerge
       problem.reload # deference all associate objet to avoid delete him after
       ProblemDestroy.execute(problem)
     end
-    merged_problem.recache
+    reset_cached_attributes
     merged_problem
+  end
+
+  private
+
+  def reset_cached_attributes
+    ProblemUpdaterCache.new(merged_problem).update
   end
 end

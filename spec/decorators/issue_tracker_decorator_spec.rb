@@ -1,25 +1,17 @@
 describe IssueTrackerDecorator do
   let(:fake_tracker) do
-    klass = Class.new(ErrbitPlugin::IssueTracker) do
-      def self.label
-        'fake'
-      end
-
-      def self.note
-        'a note'
-      end
-
+    klass = Class.new(ErrbitPlugin::IssueTracker) {
+      def self.label; 'fake'; end
+      def self.note; 'a note'; end
       def self.fields
         {
-          foo: { label: 'foo' },
-          bar: { label: 'bar' }
+          :foo => {:label => 'foo'},
+          :bar => {:label => 'bar'}
         }
       end
 
-      def configured?
-        true
-      end
-    end
+      def configured?; true; end
+    }
     klass.new 'nothing special'
   end
 

@@ -5,28 +5,30 @@ module ProblemsSearcher
   extend ActiveSupport::Concern
 
   included do
-    expose(:params_sort) do
-      if %w(app message last_notice_at count).member?(params[:sort])
-        params[:sort]
-      else
+
+    expose(:params_sort) {
+      unless %w{app message last_notice_at last_deploy_at count}.member?(params[:sort])
         "last_notice_at"
-      end
-    end
-
-    expose(:params_order) do
-      if %w(asc desc).member?(params[:order])
-        params[:order]
       else
-        'desc'
+        params[:sort]
       end
-    end
+    }
 
-    expose(:selected_problems) do
+    expose(:params_order){
+      unless %w{asc desc}.member?(params[:order])
+        'desc'
+      else
+        params[:order]
+      end
+    }
+
+    expose(:selected_problems) {
       Array(Problem.find(err_ids))
-    end
+    }
 
-    expose(:err_ids) do
+    expose(:err_ids) {
       (params[:problems] || []).compact
-    end
+    }
+
   end
 end

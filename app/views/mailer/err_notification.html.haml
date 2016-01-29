@@ -27,22 +27,15 @@
               %p.heading WHERE:
               %p.monospace
                 = @notice.where
-              - @notice.backtrace.lines.each do |line|
-                - next unless line.in_app?
+              - @notice.in_app_backtrace_lines.each do |line|
                 %p.backtrace
-                  = line.link_to_source_file(@app) do
+                  = link_to_source_file(line) do
                     = line.to_s
               %br
               - if @notice.app_version.present?
                 %p.heading APP VERSION:
                 %p.monospace
                   = @notice.app_version
-                %br
-              %br
-              - if @notice.server_environment.present? && @notice.server_environment["hostname"].present?
-                %p.heading APP SERVER:
-                %p.monospace
-                  = @notice.server_environment["hostname"]
                 %br
               %p.heading URL:
               %p.monospace
@@ -60,11 +53,11 @@
                       %td(style="text-align: right; padding-right: 10px; color: #6a6a6a;")= key.to_s.titleize + ":"
                       %td= auto_link(value.to_s)
                 %br
-              - if @notice.backtrace.lines.any?
+              - if @notice.backtrace_lines.any?
                 %br
                 %p.heading FULL BACKTRACE:
-                - @notice.backtrace.lines.each do |line|
+                - @notice.backtrace_lines.each do |line|
                   %p.backtrace
-                    = line.link_to_source_file(@app) do
+                    = link_to_source_file(line) do
                       = line.to_s
                 %br

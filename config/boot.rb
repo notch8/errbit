@@ -8,5 +8,5 @@ begin
   # try to use Yajl, the json_gem compatibility layer must be loaded after json
   require 'yajl/json_gem'
 rescue LoadError
-  warn "JSON: unable to load Yajl; just using the json gem"
+  # fail silently because json gem is fine
 end

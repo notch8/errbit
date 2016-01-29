@@ -3,47 +3,53 @@ class User
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  devise(*Errbit::Config.devise_modules)
+  devise *Errbit::Config.devise_modules
 
   field :email
   field :github_login
   field :github_oauth_token
   field :name
-  field :admin, type: Boolean, default: false
-  field :per_page, type: Fixnum, default: PER_PAGE
-  field :time_zone, default: "UTC"
+  field :admin, :type => Boolean, :default => false
+  field :per_page, :type => Fixnum, :default => PER_PAGE
+  field :time_zone, :default => "UTC"
 
   ## Devise field
   ### Database Authenticatable
-  field :encrypted_password, type: String
+  field :encrypted_password, :type => String
 
   ### Recoverable
-  field :reset_password_token, type: String
-  field :reset_password_sent_at, type: Time
+  field :reset_password_token, :type => String
+  field :reset_password_sent_at, :type => Time
 
   ### Rememberable
-  field :remember_created_at, type: Time
+  field :remember_created_at, :type => Time
 
   ### Trackable
-  field :sign_in_count,      type: Integer
-  field :current_sign_in_at, type: Time
-  field :last_sign_in_at,    type: Time
-  field :current_sign_in_ip, type: String
-  field :last_sign_in_ip,    type: String
+  field :sign_in_count,      :type => Integer
+  field :current_sign_in_at, :type => Time
+  field :last_sign_in_at,    :type => Time
+  field :current_sign_in_ip, :type => String
+  field :last_sign_in_ip,    :type => String
 
   ### Token_authenticatable
-  field :authentication_token, type: String
+  field :authentication_token, :type => String
 
-  index authentication_token: 1
+  index :authentication_token => 1
 
   before_save :ensure_authentication_token
 
-  validates :name, presence: true
-  validates :github_login, uniqueness: { allow_nil: true }
+  validates_presence_of :name
+  validates_uniqueness_of :github_login, :allow_nil => true
+
+  has_many :apps, :foreign_key => 'watchers.user_id'
 
   if Errbit::Config.user_has_username
     field :username
-    validates :username, presence: true
+    validates_presence_of :username
+  end
+
+  def watchers
+    apps.map(&:watchers).flatten.select {|w| w.user_id.to_s == id.to_s}
   end
 
   def per_page
@@ -67,7 +73,9 @@ class User
   end
 
   def github_login=(login)
-    login = nil if login.is_a?(String) && login.strip.empty?
+    if login.is_a?(String) && login.strip.empty?
+      login = nil
+    end
     self[:github_login] = login
   end
 
@@ -81,16 +89,9 @@ class User
     :auth_token
   end
 
-  def reset_password(new_password, new_password_confirmation)
-    self.password = new_password
-    self.password_confirmation = new_password_confirmation
+  private
 
-    self.class.validators_on(:password).map { |v| v.validate_each(self, :password, password) }
-    return false if errors.any?
-    save(validate: false)
-  end
-
-  private def generate_authentication_token
+  def generate_authentication_token
     loop do
       token = Devise.friendly_token
       break token unless User.where(authentication_token: token).first

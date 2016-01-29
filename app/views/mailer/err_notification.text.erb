@@ -14,8 +14,7 @@ WHERE:
 
 <%= @notice.where %>
 
-<% @notice.backtrace.lines.each do |line| %>
-  <% next unless line.in_app? %>
+<% @notice.in_app_backtrace_lines.each do |line| %>
   <%= line %>
 <% end %>
 
@@ -23,12 +22,6 @@ WHERE:
 APP VERSION:
 
 <%= @notice.app_version %>
-<%- end %>
-
-<%- if @notice.server_environment.present? && @notice.server_environment["hostname"].present? %>
-APP SERVER:
-
-<%= @notice.server_environment["hostname"] %>
 <%- end %>
 
 URL:
@@ -52,7 +45,7 @@ USER:
 
 BACKTRACE:
 
-<% @notice.backtrace.lines.each do |line| %>
+<% @notice.backtrace_lines.each do |line| %>
   <%= line %>
 <% end %>
 
