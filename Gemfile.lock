@@ -129,6 +129,7 @@ GEM
       octokit
     errbit_plugin (0.5.0)
     erubis (2.7.0)
+    excon (0.47.0)
     execjs (2.6.0)
     fabrication (2.13.2)
     faraday (0.9.1)
@@ -139,11 +140,20 @@ GEM
       multi_json
     font-awesome-rails (4.2.0.0)
       railties (>= 3.2, < 5.0)
+    foreman (0.78.0)
+      thor (~> 0.19.1)
     globalid (0.3.6)
       activesupport (>= 4.1.0)
     haml (4.0.7)
       tilt
     hashie (3.4.2)
+    heroku-api (0.4.2)
+      excon (~> 0.45)
+      multi_json (~> 1.8)
+    heroku_san (4.3.2)
+      heroku-api (>= 0.1.2)
+      json
+      rake
     hipchat (1.5.1)
       httparty
       mimemagic
@@ -268,6 +278,7 @@ GEM
     rack (1.6.4)
     rack-contrib (1.2.0)
       rack (>= 0.9.1)
+    rack-cors (0.4.0)
     rack-ssl (1.4.1)
       rack
     rack-ssl-enforcer (0.2.8)
@@ -445,7 +456,9 @@ DEPENDENCIES
   fabrication
   flowdock
   font-awesome-rails
+  foreman
   haml
+  heroku_san
   hipchat
   hoi
   hoptoad_notifier (~> 2.4)
@@ -466,6 +479,7 @@ DEPENDENCIES
   pry-rails
   puma
   quiet_assets
+  rack-cors
   rack-ssl
   rack-ssl-enforcer
   rails_12factor
@@ -486,6 +500,3 @@ DEPENDENCIES
   useragent
   xmpp4r
   yajl-ruby
-
-BUNDLED WITH
-   1.11.2
