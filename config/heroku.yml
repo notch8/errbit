@@ -27,6 +27,13 @@ notch8:
     RACK_ENV: production
     ERRBIT_HOST: err.notch8.com
     BUNDLE_WITHOUT: "development:test"
+    EMAIL_DELIVERY_METHOD: 'smtp'
+    SMTP_SERVER: 'email-smtp.us-east-1.amazonaws.com'
+    SMTP_PORT: '587'
+    SMTP_AUTHENTICATION: 'plain'
+    SMTP_USERNAME: 'AKIAJ2P27AKGIPDXBOUA'
+    SMTP_PASSWORD: 'Ahkn1vdSplUNUIT0djsktJK237QBaHOrFncibX5c6p+p'
+    SMTP_DOMAIN: 'notch8.com'
   addons:
     - mongohq:free
     - scheduler:standard
@@ -43,3 +50,6 @@ assaydepot:
     - mongohq:free
     - scheduler:standard
     - sendgrid:starter
+
+
+
