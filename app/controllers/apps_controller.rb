@@ -6,7 +6,7 @@ class AppsController < ApplicationController
   before_action :parse_notice_at_notices_or_set_default, only: [:create, :update]
   respond_to :html
 
-  expose(:app_scope) { App }
+  expose(:app_scope) { App.where("watchers.user_id" => current_user.id) }
 
   expose(:apps) do
     app_scope.all.to_a.sort.map { |app| AppDecorator.new(app) }
@@ -38,7 +38,8 @@ class AppsController < ApplicationController
     User.all.sort_by { |u| u.name.downcase }
   end
 
-  def index; end
+  def index
+  end
 
   def show
     app

@@ -12,7 +12,7 @@ class ProblemsController < ApplicationController
   ]
 
   expose(:app_scope) do
-    params[:app_id] ? App.where(_id: params[:app_id]) : App.all
+    params[:app_id] ? App.where(:_id =>  params[:app_id], "watchers.user_id" => current_user.id) : App.where("watchers.user_id" => current_user.id)
   end
 
   expose(:app) do
