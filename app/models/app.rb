@@ -2,6 +2,7 @@ class App
   include Comparable
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Mongoid::Attributes::Dynamic
 
   field :name, type: String
   field :api_key
