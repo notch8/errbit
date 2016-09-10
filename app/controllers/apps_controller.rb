@@ -6,10 +6,10 @@ class AppsController < ApplicationController
   before_action :parse_notice_at_notices_or_set_default, only: [:create, :update]
   respond_to :html
 
-  expose(:app_scope) { App.where("watchers.user_id" => current_user.id) }
+  expose(:app_scope) { App }
 
   expose(:apps) do
-    app_scope.all.to_a.sort.map { |app| AppDecorator.new(app) }
+    app_scope.where("watchers.user_id" => current_user.id).all.to_a.sort.map { |app| AppDecorator.new(app) }
   end
 
   expose(:app, ancestor: :app_scope, attributes: :app_params)
